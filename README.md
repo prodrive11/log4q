@@ -37,8 +37,8 @@ log4q defines six logger functions in the root namespace:
 
 Sinks management:
 
--   `.l.a` adds sink
--   `.l.r` removes sink
+-   `.log4q.a` adds sink
+-   `.log4q.r` removes sink
 
 All logic is in the `.l` namespace.
 <!-- 
@@ -99,8 +99,8 @@ Those can be as follows – but certainly not limited to this list.
 
 Outputs to stdout and stderr are predefined as follows:
 ```q
-.l.a[1;`SILENT`DEBUG`INFO`WARN];
-.l.a[2;`ERROR`FATAL];
+.log4q.a[1;`SILENT`DEBUG`INFO`WARN];
+.log4q.a[2;`ERROR`FATAL];
 ```
 Messages from `SILENT`, `DEBUG`, `INFO` and `WARN` go to stdout (1); messages from `WARN`, `ERROR` and `FATAL` go to stderr (2).
 
@@ -108,7 +108,7 @@ Messages from `SILENT`, `DEBUG`, `INFO` and `WARN` go to stdout (1); messages fr
 ### File handle
 
 ```q
-.l.a[hopen `:my_test2.log;`DEBUG`INFO]
+.log4q.a[hopen `:my_test2.log;`DEBUG`INFO]
 ```
 pushes all `DEBUG` and `INFO` messages to file `./my_test2.log`.
 
@@ -116,7 +116,7 @@ pushes all `DEBUG` and `INFO` messages to file `./my_test2.log`.
 ### TCP handle 
 
 ```
-.l.a[(hopen `::5555:user:pass;{x@(`upd;`msg;y)});`INFO`ERROR`FATAL]
+.log4q.a[(hopen `::5555:user:pass;{x@(`upd;`msg;y)});`INFO`ERROR`FATAL]
 ```
 sends updates to the server at localhost:5555 when any messages are sent by `INFO`, `ERROR` or `FATAL`.
 
@@ -129,7 +129,7 @@ f: {[x;y]
     addr: "group@abc.com";
     system "echo \"",y,"\" | mailx -s \"",sub,"\" ",addr;
     };
-.l.a[(-333;f); `ERROR`FATAL]
+.log4q.a[(-333;f); `ERROR`FATAL]
 ```
 sends an email to `group@abc.com` when any `ERROR` or `FATAL` message is sent.
 
@@ -137,7 +137,7 @@ sends an email to `group@abc.com` when any `ERROR` or `FATAL` message is sent.
 ### syslog 
 
 ```
-.l.a[(-334;{[x;y] system "logger ",y;});`INFO`ERROR`FATAL];
+.log4q.a[(-334;{[x;y] system "logger ",y;});`INFO`ERROR`FATAL];
 ```
 posts a simple syslog message using `logger`. See `man logger` for more advanced features.
 
@@ -157,7 +157,7 @@ You can define output formats using predefined patterns of the following form: `
 
 The default format is
 ```
-.l.fm: "%c\t[%p]:H=%h:PID[%i]:%d:%t:%f: %m\r\n"
+.log4q.fm: "%c\t[%p]:H=%h:PID[%i]:%d:%t:%f: %m\r\n"
 ```
 
 
@@ -174,15 +174,15 @@ token | semantics
 `%i`  | PID of the current process
 
 **Watch out**
-* the format in `.l.fm` can be switched in runtime
-* supported formats can be changed and extended in the `.l.m` dictionary
+* the format in `.log4q.fm` can be switched in runtime
+* supported formats can be changed and extended in the `.log4q.m` dictionary
 
 Runtime format switch example
 ```q
 q)ERROR "simple message";
     ERROR   [2012.03.01D23:32:30.609375000]:PID[1924];log4.q: simple message
 
-q).l.fm: "%c\t[%p]:H:%h;PID[%i];%d;%t;%f: %m\r\n"
+q).log4q.fm: "%c\t[%p]:H:%h;PID[%i];%d;%t;%f: %m\r\n"
 q)ERROR ("%1 simple message"; `another);
     ERROR   [2012.03.01D23:34:30.234375000]:H:prodrive-notebo;PID[1924];2012.03.01;23:34:30.234;log4.q: `another simple message
 ```
@@ -195,7 +195,7 @@ q)ERROR ("%1 simple message"; `another);
 \l log4.q
 
 // adding logging to file on ERROR and FATAL messages
-.l.a[hopen `:./app_logging.log;`ERROR`FATAL];
+.log4q.a[hopen `:./app_logging.log;`ERROR`FATAL];
 
 foo:{ $[x; INFO ("Param x:%1 correct";x); WARN ("Param x:%1 suspicious";x)];};
 .z.exit:{ERROR "App finished";}
@@ -257,7 +257,7 @@ q log4.q -p 5001 -log info
 q)INFO ("Test %1 log";1222);
     INFO    [2012.03.01D23:14:17.718750000]:log4.q: Test 1222 log
 q)DEBUG ("Test %1 log";1222);
-q).l.snk
+q).log4q.snk
     SILENT| 1
     DEBUG | 1
     INFO  | 1
@@ -267,8 +267,8 @@ q).l.snk
 ```
 Add TCP sink with function which will send a update message to defined handle
 ```q
-q).l.a[(hopen `::5555:user:pass;{x@(`upd;`msg;y)});`INFO`ERROR`FATAL]
-q).l.snk
+q).log4q.a[(hopen `::5555:user:pass;{x@(`upd;`msg;y)});`INFO`ERROR`FATAL]
+q).log4q.snk
     SILENT| ,1
     DEBUG | ,1
     INFO  | 1 1800
@@ -289,10 +289,10 @@ q)(`msg;"ERROR\t[2012.03.01D23:15:22.609375000]:log4.q: Test 1222 log\r\n")
 ### Adding and removing a sink 
 
 ```q
-q).l.r[1;`DEBUG`INFO] /removes logging to stdout at DEBUG and `INFO severity
+q).log4q.r[1;`DEBUG`INFO] /removes logging to stdout at DEBUG and `INFO severity
 
-q).l.a[hopen `:my_test2.log;`INFO`ERROR]
-q).l.snk
+q).log4q.a[hopen `:my_test2.log;`INFO`ERROR]
+q).log4q.snk
     SILENT| ,1
     DEBUG | ,1
     INFO  | 1 1800
@@ -300,8 +300,8 @@ q).l.snk
     ERROR | 2 1800
     FATAL | ,2
 
-q).l.r[1800;`INFO`ERROR]
-q).l.snk
+q).log4q.r[1800;`INFO`ERROR]
+q).log4q.snk
     SILENT| 1
     DEBUG | 1
     INFO  | 1
@@ -309,8 +309,8 @@ q).l.snk
     ERROR | 2
     FATAL | 2
 
-q).l.a[1800;`INFO`ERROR]
-q).l.snk
+q).log4q.a[1800;`INFO`ERROR]
+q).log4q.snk
     SILENT| ,1
     DEBUG | ,1
     INFO  | 1 1800
@@ -319,7 +319,3 @@ q).l.snk
     FATAL | ,2
 ```
 
-
-## Reporting bugs 
-
-Report bugs to Patryk Bukowinski: p.bukowinski@gmail.com

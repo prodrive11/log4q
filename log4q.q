@@ -1,15 +1,15 @@
-\d .l
+\d .log4.q
 fm:"%c\t[%p]:H=%h:PID[%i]:%d:%t:%f: %m\r\n";
 sev:snk:`SILENT`DEBUG`INFO`WARN`ERROR`FATAL!();a:{$[1<count x;[h[x 0]::x 1;snk[y],::x 0];[h[x]::{x@y};snk[y],::x;]];};r:{snk::@[snk;y;except;x];};
 h:m:()!();m["c"]:{[x;y]string x};m["f"]:{[x;y]string .z.f};m["p"]:{[x;y]string .z.p};m["m"]:{[x;y]y};m["h"]:{[x;y]string .z.h};m["i"]:{[x;y]string .z.i};m["d"]:{[x;y]string .z.d};m["t"]:{[x;y]string .z.t};
 l:{ssr/[fm;"%",/:lfm;m[lfm:raze -1_/:2_/:nl where fm like/: nl:"*%",/:(.Q.a,.Q.A),\:"*"].\:(x;y)]};
 p:{$[10h~type x:(),x;x;(2~count x) & 10h~type x 0;ssr/[x 0;"%",/:string 1+til count (),x 1;.Q.s1 each (),x 1];.Q.s1 x]};
 sevl:$[`log in key .Q.opt .z.x;first `$upper first .Q.opt .z.x;`INFO];
-(` sv' ``l,/:`$(),/:each[first;string lower key snk]) set' {{@[.l.h[x]x;y;{[h;e]'"log4q - ", string[h]," exception:",e}[x]]}[;l[x] p y]@/:snk[x]}@/: key[snk];n:(::);
+(` sv' ``log4q,/:`$(),/:each[first;string lower key snk]) set' {{@[.log4q.h[x]x;y;{[h;e]'"log4q - ", string[h]," exception:",e}[x]]}[;l[x] p y]@/:snk[x]}@/: key[snk];n:(::);
 sev:key[snk]!((n;n;n;n;n;n);(n;d;i;w;e;f);(n;n;i;w;e;f);(n;n;n;w;e;f);(n;n;n;n;e;f);(n;n;n;n;n;f));
 a[1;`SILENT`DEBUG`INFO`WARN];a[2;`ERROR`FATAL]; 
 \d .
-key[.l.snk] set' .l.sev .l.sevl;
+key[.log4q.snk] set' .log4q.sev .log4q.sevl;
 
 
 
@@ -54,7 +54,7 @@ default sinks:
 (warn, error and fatal) to stderr
 
 ---------------
-Logs pattern layout - format (.l.fm) 
+Logs pattern layout - format (.log4q.fm) 
 ---------------
 * can be changed in runtime
 supported formats:
@@ -71,7 +71,7 @@ supported formats:
 ex.
 q)ERROR "simple message";
 ERROR   [2012.03.01D23:32:30.609375000]:PID[1924];log4.q: simple message
-q).l.fm:"%c\t[%p]:H:%h;PID[%i];%d;%t;%f: %m\r\n"
+q).log4q.fm:"%c\t[%p]:H:%h;PID[%i];%d;%t;%f: %m\r\n"
 q)ERROR ("%2 simple message";`another);
 ERROR   [2012.03.01D23:34:30.234375000]:H:prodrive-notebo;PID[1924];2012.03.01;23:34:30.234;log4.q: %2 simple message
 
@@ -83,9 +83,9 @@ sinks management
 
 /add sink  
 * file handle
-	.l.a[hopen `:my_test2.log;`INFO`ERROR]
+	.log4q.a[hopen `:my_test2.log;`INFO`ERROR]
 * TCP handle with special modification function
-	.l.a[(hopen `::5555:user:pass;{x@(`upd;`msg;y)});`INFO`ERROR`FATAL]
+	.log4q.a[(hopen `::5555:user:pass;{x@(`upd;`msg;y)});`INFO`ERROR`FATAL]
   
 ex:
 	q -p 5555
@@ -97,15 +97,15 @@ ex:
 	q)INFO ("Test %1 log";1222);
 	INFO    [2012.03.01D23:14:17.718750000]:log4.q: Test 1222 log
 	q)DEBUG ("Test %1 log";1222);
-	q).l.snk
+	q).log4q.snk
 	SILENT| 1
 	DEBUG | 1
 	INFO  | 1
 	WARN  | 1
 	ERROR | 2
 	FATAL | 2
-	q).l.a[(hopen `::5555:user:pass;{x@(`upd;`msg;y)});`INFO`ERROR`FATAL]
-	q).l.snk
+	q).log4q.a[(hopen `::5555:user:pass;{x@(`upd;`msg;y)});`INFO`ERROR`FATAL]
+	q).log4q.snk
 	SILENT| ,1
 	DEBUG | ,1
 	INFO  | 1 1800
@@ -120,26 +120,26 @@ ex:
 	q)(`msg;"ERROR\t[2012.03.01D23:15:22.609375000]:log4.q: Test 1222 log\r\n")
 
 /remove sink
-	.l.r[1;`DEBUG`INFO] /removes logging to stdout at DEBUG and `INFO severity
+	.log4q.r[1;`DEBUG`INFO] /removes logging to stdout at DEBUG and `INFO severity
 
-q).l.a[hopen `:my_test2.log;`INFO`ERROR]
-q).l.snk
+q).log4q.a[hopen `:my_test2.log;`INFO`ERROR]
+q).log4q.snk
 SILENT| ,1
 DEBUG | ,1
 INFO  | 1 1800
 WARN  | ,1
 ERROR | 2 1800
 FATAL | ,2
-q).l.r[1800;`INFO`ERROR]
-q).l.snk
+q).log4q.r[1800;`INFO`ERROR]
+q).log4q.snk
 SILENT| 1
 DEBUG | 1
 INFO  | 1
 WARN  | 1
 ERROR | 2
 FATAL | 2
-q).l.a[1800;`INFO`ERROR]
-q).l.snk
+q).log4q.a[1800;`INFO`ERROR]
+q).log4q.snk
 SILENT| ,1
 DEBUG | ,1
 INFO  | 1 1800
