@@ -40,7 +40,7 @@ log examples:
 ERROR "simple message";
 INFO (23.;`test);
 WARN `test;
-SILLENT 23;
+SILENT 23;
 
 /printf alike formatting:
 q)INFO ("This is a log %1 %2 %3";(23;`adf;(3;{x+y});4));
@@ -75,8 +75,8 @@ ex.
 q)ERROR "simple message";
 ERROR   [2012.03.01D23:32:30.609375000]:PID[1924];log4q.q: simple message
 q).log4q.fm:"%c\t[%p]:H:%h;PID[%i];%d;%t;%f: %m\r\n"
-q)ERROR ("%2 simple message";`another);
-ERROR   [2012.03.01D23:34:30.234375000]:H:prodrive-notebo;PID[1924];2012.03.01;23:34:30.234;log4q.q: %2 simple message
+q)ERROR ("%1 simple message";`another);
+ERROR   [2012.03.01D23:34:30.234375000]:H:prodrive-notebo;PID[1924];2012.03.01;23:34:30.234;log4q.q: `another simple message
 
 
 ---------------
